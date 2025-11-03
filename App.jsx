@@ -5,6 +5,7 @@ import { getAnalysis } from './apiService';
 
 function App() {
   const [provider, setProvider] = useState('OpenAI');
+  // Use environment variable as fallback if available
   const [apiKey, setApiKey] = useState('');
   const [inputCode, setInputCode] = useState('');
   const [analysisResult, setAnalysisResult] = useState('');
@@ -17,8 +18,18 @@ function App() {
       return;
     }
 
-    if (!apiKey.trim() && provider === 'OpenAI') {
-      setError('Please enter your API key.');
+    // Use environment variable as fallback for API key
+    let effectiveApiKey = apiKey.trim();
+    if (!effectiveApiKey) {
+      if (provider === 'OpenAI') {
+        effectiveApiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
+      } else if (provider === 'Gemini') {
+        effectiveApiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+      }
+    }
+
+    if (!effectiveApiKey && (provider === 'OpenAI' || provider === 'Gemini')) {
+      setError(`Please enter your ${provider} API key or set it in environment variables.`);
       return;
     }
 
@@ -27,7 +38,7 @@ function App() {
     setAnalysisResult('');
 
     try {
-      const result = await getAnalysis(inputCode, provider, apiKey);
+      const result = await getAnalysis(inputCode, provider, effectiveApiKey);
       setAnalysisResult(result);
     } catch (err) {
       setError(err.message || 'An error occurred during analysis.');
@@ -62,6 +73,7 @@ function App() {
                 className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="OpenAI">OpenAI</option>
+                <option value="Gemini">Gemini</option>
                 <option value="Grok (Mock)">Grok (Mock)</option>
                 <option value="Llama (Mock)">Llama (Mock)</option>
               </select>
@@ -69,13 +81,19 @@ function App() {
             <div>
               <label htmlFor="apiKey" className="block text-sm font-medium mb-2">
                 API Key
+                {(provider === 'OpenAI' && import.meta.env.VITE_OPENAI_API_KEY) || 
+                 (provider === 'Gemini' && import.meta.env.VITE_GEMINI_API_KEY) ? (
+                  <span className="ml-2 text-xs text-green-400">(using env variable)</span>
+                ) : null}
               </label>
               <input
                 id="apiKey"
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your API key"
+                placeholder={`${(provider === 'OpenAI' && import.meta.env.VITE_OPENAI_API_KEY) || 
+                              (provider === 'Gemini' && import.meta.env.VITE_GEMINI_API_KEY) 
+                              ? 'Optional - using env variable' : 'Enter your API key'}`}
                 className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
