@@ -12,7 +12,7 @@ export default function ContactPage() {
       <div className="mx-auto max-w-2xl px-4 py-10 space-y-6">
         <h1 className="text-3xl font-bold">Contact Us</h1>
         <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-6 space-y-3">
-          <p className="text-gray-300">Developed by Buzz t</p>
+          <p className="text-gray-300">Developed by Buzz It</p>
           <p className="text-gray-300">Email: arnavmanwatkar28@email.com</p>
           <p className="text-gray-300">
             GitHub: <a href="https://github.com/yourusername" target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">@arnav4018</a>
